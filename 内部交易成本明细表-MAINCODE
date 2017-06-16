@@ -1,0 +1,43 @@
+select substr(tsl.dbilldate,1,10) rq,ofo.name         dbckzz,
+       ofo2.name        dbrkzz,
+       bm.code          wlbm,
+       bm.name          wl,
+       bmc.code         wlfl,
+       tslb.nnumber     zsl,
+       tslb.norigprice  wsdj,
+       tslb.norigtaxmny je,
+       iibb.nprice      cbdj,
+       iibb.nmny        cbje,
+       iib.vbillcode    djh,
+       bsd.name         ck,
+       pk_group
+  from to_settlelist_bb tslbb
+  left join to_settlelist_b tslb
+    on tslbb.cbill_bid = tslb.cbill_bid
+  left join to_settlelist tsl
+    on tslb.cbillid = tsl.cbillid
+  left join bd_material bm
+    on tslb.cinventoryid = bm.pk_material
+  left join org_financeorg ofo
+    on tsl.ctargetfiorgid = ofo.pk_financeorg
+  left join org_financeorg ofo2
+    on tsl.pk_org = ofo2.pk_financeorg
+  left join bd_marbasclass bmc
+    on bm.pk_marbasclass=bmc.pk_marbasclass
+  left join 
+  (select tslbb.cbill_bbid             cbill_bbid,
+                    avg(iibb.nprice)   nprice,
+                    sum(iibb.nmny)     nmny
+               from ia_ijbill_b iibb                             
+               left join to_settlelist_bb tslbb
+                 on iibb.csrcbid = tslbb.cbill_bbid
+              group by tslbb.cbill_bbid
+              ) iibb                 
+    on tslbb.cbill_bbid = iibb.cbill_bbid
+  right join ia_ijbill_b iibb2
+      on iibb2.csrcbid = tslbb.cbill_bbid
+  join ia_ijbill iib
+    on iibb2.cbillid=iib.cbillid
+  left join bd_stordoc bsd
+      on bsd.pk_stordoc = iib.cstordocid
+   where tslbb.dr=0 and iibb2.dr=0
