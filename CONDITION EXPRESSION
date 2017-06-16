@@ -1,0 +1,3 @@
+(substr(t_1.RQ,1,7) in (parameter('kjdate')))
+
+(t_1.WLFL like parameter('mbasclass') || '%')
